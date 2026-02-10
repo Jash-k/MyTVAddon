@@ -49,17 +49,27 @@ app.get("/catalog/tv/tamil.json", async (req, res) => {
 /* ================= STREAMS ================= */
 app.get("/streams/tv/:id.json", (req, res) => {
   try {
-    const encoded = req.params.id.replace("tamil:", "");
-    const streamUrl = Buffer.from(encoded, "base64").toString("utf8");
+    const id = req.params.id;
 
+    // ❌ Must start with tamil:
+    if (!id.startsWith("tamil:")) {
+      return res.json({ streams: [] });
+    }
+
+    // ✅ Decode base64 URL
+    const base64 = id.replace("tamil:", "");
+    const streamUrl = Buffer.from(base64, "base64").toString("utf8");
+
+    // ❌ Safety check
     if (!streamUrl.startsWith("http")) {
       return res.json({ streams: [] });
     }
 
+    // ✅ Return stream
     res.json({
       streams: [
         {
-          name: ADDON_NAME,
+          name: "FREE LIV TV",
           title: "Live",
           url: streamUrl,
           behaviorHints: {
@@ -69,10 +79,11 @@ app.get("/streams/tv/:id.json", (req, res) => {
         }
       ]
     });
-  } catch {
+  } catch (err) {
     res.json({ streams: [] });
   }
 });
+
 
 /* ================= HEALTH ================= */
 app.get("/", (req, res) => {
