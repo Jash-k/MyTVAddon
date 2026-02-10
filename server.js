@@ -47,25 +47,25 @@ app.get("/catalog/tv/tamil.json", async (req, res) => {
 });
 
 /* ================= STREAMS ================= */
-app.get("/streams/tv/:id.json", (req, res) => {
+app.get("/streams/tv/*", (req, res) => {
   try {
-    const id = req.params.id;
+    // Get full path after /streams/tv/
+    const rawId = req.params[0];
 
-    // ❌ Must start with tamil:
-    if (!id.startsWith("tamil:")) {
+    // URL-decode it (CRITICAL)
+    const decodedId = decodeURIComponent(rawId);
+
+    if (!decodedId.startsWith("tamil:")) {
       return res.json({ streams: [] });
     }
 
-    // ✅ Decode base64 URL
-    const base64 = id.replace("tamil:", "");
+    const base64 = decodedId.replace("tamil:", "");
     const streamUrl = Buffer.from(base64, "base64").toString("utf8");
 
-    // ❌ Safety check
     if (!streamUrl.startsWith("http")) {
       return res.json({ streams: [] });
     }
 
-    // ✅ Return stream
     res.json({
       streams: [
         {
@@ -79,10 +79,11 @@ app.get("/streams/tv/:id.json", (req, res) => {
         }
       ]
     });
-  } catch (err) {
+  } catch (e) {
     res.json({ streams: [] });
   }
 });
+
 
 
 /* ================= HEALTH ================= */
