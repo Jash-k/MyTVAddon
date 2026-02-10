@@ -1,61 +1,50 @@
 import express from "express";
-import cors from "cors";
+import fetch from "node-fetch";
 import { loadChannels } from "./m3u.js";
 
 const app = express();
-app.use(cors());
-
 const PORT = process.env.PORT || 3000;
 
-let CHANNELS = [];
-
-/* =========================
-   LOAD PLAYLIST ON START
-========================= */
-async function init() {
-  CHANNELS = await loadChannels();
-  console.log("Loaded channels:", CHANNELS.length);
+function encodeId(url) {
+  return Buffer.from(url)
+    .toString("base64")
+    .replace(/\+/g, "-")
+    .replace(/\//g, "_")
+    .replace(/=+$/, "");
 }
-init();
 
-/* =========================
-   MANIFEST
-========================= */
+/* MANIFEST */
 app.get("/manifest.json", (req, res) => {
   res.json({
-    id: "org.mytv.tamil",
+    id: "org.mytv.stremio",
     version: "1.0.0",
-    name: "MyTV Tamil",
-    description: "FREE LIV TV Tamil Channels",
-    resources: ["catalog", "streams"],
+    name: "FREE LIV TV",
+    description: "Tamil Live TV",
     types: ["tv"],
-    catalogs: [
-      {
-        type: "tv",
-        id: "tamil",
-        name: "Tamil TV"
-      }
-    ]
+    catalogs: [{
+      type: "tv",
+      id: "tamil",
+      name: "Tamil Live TV"
+    }],
+    resources: ["catalog", "streams"]
   });
 });
 
-/* =========================
-   CATALOG
-========================= */
-app.get("/catalog/tv/tamil.json", (req, res) => {
-  const metas = CHANNELS.map(ch => ({
-    id: "tamil:" + Buffer.from(ch.url).toString("base64"),
-    type: "tv",
-    name: ch.name,
-    poster: ch.poster
-  }));
+/* CATALOG */
+app.get("/catalog/:type/:id.json", async (req, res) => {
+  const channels = await loadChannels();
 
-  res.json({ metas });
+  res.json({
+    metas: channels.map(ch => ({
+      id: "tamil:" + encodeId(ch.url),
+      type: "tv",
+      name: ch.name,
+      poster: "https://i.ibb.co/p4knk5y/images-4.png"
+    }))
+  });
 });
 
-/* =========================
-   STREAMS (MOST IMPORTANT)
-========================= */
+/* STREAMS */
 app.get("/streams/:type/:id.json", (req, res) => {
   try {
     const { id } = req.params;
@@ -64,44 +53,30 @@ app.get("/streams/:type/:id.json", (req, res) => {
       return res.json({ streams: [] });
     }
 
-    const base64 = id.replace("tamil:", "");
-    const streamUrl = Buffer.from(base64, "base64").toString("utf8");
+    const base64url = id.replace("tamil:", "");
 
-    if (!streamUrl.startsWith("http")) {
-      return res.json({ streams: [] });
-    }
+    let b64 = base64url.replace(/-/g, "+").replace(/_/g, "/");
+    while (b64.length % 4) b64 += "=";
+
+    const streamUrl = Buffer.from(b64, "base64").toString("utf8");
 
     res.json({
-      streams: [
-        {
-          name: "FREE LIV TV",
-          title: "Live",
-          url: streamUrl,
-          behaviorHints: {
-            notWebReady: true,
-            isLive: true,
-            bingeGroup: "live",
-            hls: streamUrl.includes(".m3u8"),
-            proxyHeaders: {
-              "User-Agent": "Mozilla/5.0",
-              "Referer": "https://google.com"
-            }
-          }
+      streams: [{
+        name: "FREE LIV TV",
+        title: "Live",
+        url: streamUrl,
+        behaviorHints: {
+          notWebReady: true,
+          isLive: true,
+          hls: streamUrl.includes(".m3u8")
         }
-      ]
+      }]
     });
-  } catch (e) {
+  } catch {
     res.json({ streams: [] });
   }
 });
 
-/* =========================
-   ROOT
-========================= */
-app.get("/", (req, res) => {
-  res.send("MyTVStremioAddon is running");
-});
-
-app.listen(PORT, () => {
-  console.log("Server running on port", PORT);
-});
+app.listen(PORT, () =>
+  console.log("Addon running on port", PORT)
+);
