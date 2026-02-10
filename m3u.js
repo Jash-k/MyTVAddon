@@ -1,10 +1,10 @@
 import fetch from "node-fetch";
 
 const PLAYLIST_URL =
-  "https://raw.githubusercontent.com/amit-654584/jtv/main/jtv.m3u";
+  "https://raw.githubusercontent.com/Jash-k/MyTVStremioAddon/refs/heads/main/starshare.m3u";
 
 export async function loadChannels() {
-  const res = await fetch(PLAYLIST_URL);
+  const res = await fetch(PLAYLIST_URL, { timeout: 15000 });
   const text = await res.text();
 
   const lines = text.split("\n");
@@ -14,15 +14,15 @@ export async function loadChannels() {
 
   for (const line of lines) {
     if (line.startsWith("#EXTINF")) {
-      const name = line.split(",").pop().trim();
+      const name = line.split(",").pop()?.trim() || "Live TV";
+
       const logo =
         line.match(/tvg-logo="([^"]+)"/)?.[1] ||
         "https://i.ibb.co/DPd27cCK/photo-2024-12-29-23-10-30.jpg";
 
-      let group = "TAMIL | ENTERTAINMENT";
-
-      if (/news/i.test(name)) group = "TAMIL | NEWS";
-      if (/movie/i.test(name)) group = "TAMIL | MOVIES";
+      let group = "FREE LIV TV || TAMIL | ENTERTAINMENT";
+      if (/news/i.test(name)) group = "FREE LIV TV || TAMIL | NEWS";
+      if (/movie/i.test(name)) group = "FREE LIV TV || TAMIL | MOVIES";
 
       current = { name, logo, group };
     } else if (line.startsWith("http")) {

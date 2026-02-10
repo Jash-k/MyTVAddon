@@ -6,15 +6,15 @@ const PORT = process.env.PORT || 3000;
 
 const ADDON_ID = "org.mytv.stremio";
 const ADDON_NAME = "MyTV Stremio Addon";
-const BASE_URL = process.env.BASE_URL || `http://localhost:${PORT}`;
+const ADDON_VERSION = "1.0.0";
 
-/* ========= MANIFEST ========= */
+/* ================= MANIFEST ================= */
 app.get("/manifest.json", (req, res) => {
   res.json({
     id: ADDON_ID,
-    version: "1.0.0",
+    version: ADDON_VERSION,
     name: ADDON_NAME,
-    description: "Tamil IPTV addon for Stremio",
+    description: "Production-ready IPTV addon for Stremio",
     resources: ["catalog", "streams"],
     types: ["tv"],
     catalogs: [
@@ -28,47 +28,57 @@ app.get("/manifest.json", (req, res) => {
   });
 });
 
-/* ========= CATALOG ========= */
+/* ================= CATALOG ================= */
 app.get("/catalog/tv/tamil.json", async (req, res) => {
-  const channels = await loadChannels();
+  try {
+    const channels = await loadChannels();
 
-  const metas = channels.map((c, i) => ({
-    id: `tamil:${i}`,
-    type: "tv",
-    name: c.name,
-    poster: c.logo
-  }));
+    const metas = channels.map((c) => ({
+      id: "tamil:" + Buffer.from(c.url).toString("base64"),
+      type: "tv",
+      name: c.name,
+      poster: c.logo
+    }));
 
-  res.json({ metas });
+    res.json({ metas });
+  } catch {
+    res.json({ metas: [] });
+  }
 });
 
-/* ========= STREAM RESOLVER ========= */
-app.get("/streams/tv/:id.json", async (req, res) => {
-  const index = parseInt(req.params.id.split(":")[1], 10);
-  const channels = await loadChannels();
-  const channel = channels[index];
+/* ================= STREAMS ================= */
+app.get("/streams/tv/:id.json", (req, res) => {
+  try {
+    const encoded = req.params.id.replace("tamil:", "");
+    const streamUrl = Buffer.from(encoded, "base64").toString("utf8");
 
-  if (!channel) return res.json({ streams: [] });
+    if (!streamUrl.startsWith("http")) {
+      return res.json({ streams: [] });
+    }
 
-  res.json({
-    streams: [
-      {
-        name: ADDON_NAME,
-        title: channel.name,
-        url: channel.url,
-        behaviorHints: {
-          notWebReady: true
+    res.json({
+      streams: [
+        {
+          name: ADDON_NAME,
+          title: "Live",
+          url: streamUrl,
+          behaviorHints: {
+            notWebReady: true,
+            bingeGroup: "live"
+          }
         }
-      }
-    ]
-  });
+      ]
+    });
+  } catch {
+    res.json({ streams: [] });
+  }
 });
 
-/* ========= HEALTH ========= */
+/* ================= HEALTH ================= */
 app.get("/", (req, res) => {
-  res.send("MyTV Stremio Addon is running");
+  res.send("MyTVStremioAddon is running");
 });
 
 app.listen(PORT, () => {
-  console.log(`Addon running on port ${PORT}`);
+  console.log(`MyTVStremioAddon running on port ${PORT}`);
 });
