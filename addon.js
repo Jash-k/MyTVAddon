@@ -1,225 +1,346 @@
 const { addonBuilder } = require('stremio-addon-sdk');
-const { loadChannels } = require('./m3u');
 const fetch = require('node-fetch');
+const config = require('./config');
+const { loadChannels, getChannelByUrl } = require('./m3u');
+const { streamCache, metaCache } = require('./cache');
+const { encodeId, decodeId, log, error, debug, getCategoryIcon } = require('./utils');
 
-function encodeId(url) {
-  return Buffer.from(url)
-    .toString("base64")
-    .replace(/\+/g, "-")
-    .replace(/\//g, "_")
-    .replace(/=+$/, "");
-}
-
-function decodeId(id) {
-  let b64 = id.replace(/-/g, "+").replace(/_/g, "/");
-  while (b64.length % 4) b64 += "=";
-  return Buffer.from(b64, "base64").toString("utf8");
-}
-
+// Manifest
 const manifest = {
-  id: "org.freelivtv.tamil",
-  version: "1.1.0",
-  name: "FREE LIV TV",
-  description: "Tamil Live TV - Direct Stream",
-  types: ["tv"],
+  id: config.APP_ID,
+  version: config.APP_VERSION,
+  name: config.APP_NAME,
+  description: 'Tamil Live TV - 200+ Channels | Cricket | Movies | News | Optimized for Samsung TV',
+  logo: 'https://i.ibb.co/p4knk5y/images-4.png',
+  types: ['tv'],
   catalogs: [
     {
-      type: "tv",
-      id: "tamil-all",
-      name: "All Channels"
+      type: 'tv',
+      id: 'tamil-all',
+      name: '📺 All Channels',
+      extra: [{ name: 'genre' }, { name: 'search' }, { name: 'skip' }]
     },
     {
-      type: "tv",
-      id: "tamil-cricket",
-      name: "Cricket"
+      type: 'tv',
+      id: 'tamil-cricket',
+      name: '🏏 Cricket'
     },
     {
-      type: "tv",
-      id: "tamil-movies", 
-      name: "Movies"
+      type: 'tv',
+      id: 'tamil-movies',
+      name: '🎬 Movies'
     },
     {
-      type: "tv",
-      id: "tamil-news",
-      name: "News"
+      type: 'tv',
+      id: 'tamil-news',
+      name: '📰 News'
+    },
+    {
+      type: 'tv',
+      id: 'tamil-entertainment',
+      name: '📺 Entertainment'
+    },
+    {
+      type: 'tv',
+      id: 'tamil-music',
+      name: '🎵 Music'
     }
   ],
-  resources: ["catalog", "meta", "stream"],
-  idPrefixes: ["tamil:"]
+  resources: ['catalog', 'meta', 'stream'],
+  idPrefixes: ['tamil:'],
+  behaviorHints: {
+    adult: false,
+    p2p: false
+  }
 };
 
 const builder = new addonBuilder(manifest);
 
-builder.defineCatalogHandler(async ({ type, id }) => {
-  if (type !== "tv") return { metas: [] };
+// ==========================================
+// CATALOG HANDLER
+// ==========================================
+builder.defineCatalogHandler(async ({ type, id, extra }) => {
+  debug(`[CATALOG] type=${type}, id=${id}, extra=`, extra);
+  
+  if (type !== 'tv') {
+    return { metas: [] };
+  }
 
   try {
     const allChannels = await loadChannels();
     let channels = allChannels;
 
-    if (id === "tamil-cricket") {
-      channels = allChannels.filter(ch => ch.category === "Cricket");
-    } else if (id === "tamil-movies") {
-      channels = allChannels.filter(ch => ch.category === "Movies");
-    } else if (id === "tamil-news") {
-      channels = allChannels.filter(ch => ch.category === "News");
+    // Filter by catalog ID
+    const categoryMap = {
+      'tamil-cricket': 'Cricket',
+      'tamil-movies': 'Movies',
+      'tamil-news': 'News',
+      'tamil-entertainment': 'Entertainment',
+      'tamil-music': 'Music'
+    };
+
+    if (categoryMap[id]) {
+      channels = allChannels.filter(ch => ch.category === categoryMap[id]);
     }
 
-    return {
-      metas: channels.map(ch => ({
-        id: "tamil:" + encodeId(ch.url),
-        type: "tv",
-        name: ch.name,
-        posterShape: "square",
-        releaseInfo: "LIVE"
-      }))
-    };
-  } catch (error) {
-    console.error('[CATALOG]', error);
+    // Handle search
+    if (extra && extra.search) {
+      const searchTerm = extra.search.toLowerCase();
+      channels = channels.filter(ch =>
+        ch.name.toLowerCase().includes(searchTerm) ||
+        ch.displayName.toLowerCase().includes(searchTerm) ||
+        ch.category.toLowerCase().includes(searchTerm)
+      );
+    }
+
+    // Handle genre filter
+    if (extra && extra.genre) {
+      channels = channels.filter(ch => ch.category === extra.genre);
+    }
+
+    // Handle pagination
+    const skip = extra && extra.skip ? parseInt(extra.skip) : 0;
+    const limit = 100;
+    channels = channels.slice(skip, skip + limit);
+
+    // Build metas
+    const metas = channels.map(ch => {
+      const channelId = 'tamil:' + encodeId(ch.url);
+      
+      return {
+        id: channelId,
+        type: 'tv',
+        name: ch.displayName || ch.name,
+        poster: config.ENABLE_LOGOS && ch.logo ? ch.logo : undefined,
+        posterShape: 'square',
+        background: config.ENABLE_LOGOS && ch.logo ? ch.logo : undefined,
+        description: `${getCategoryIcon(ch.category)} ${ch.category} • ${ch.quality}`,
+        genres: [ch.category],
+        releaseInfo: 'LIVE',
+        runtime: 'LIVE',
+        behaviorHints: {
+          defaultVideoId: channelId,
+          hasScheduledVideos: false
+        }
+      };
+    });
+
+    log(`[CATALOG] Returning ${metas.length} channels for ${id}`);
+    
+    return { metas };
+
+  } catch (err) {
+    error('[CATALOG] Error:', err.message);
     return { metas: [] };
   }
 });
 
+// ==========================================
+// META HANDLER
+// ==========================================
 builder.defineMetaHandler(async ({ type, id }) => {
-  if (type !== "tv" || !id.startsWith("tamil:")) return { meta: null };
+  debug(`[META] type=${type}, id=${id}`);
+  
+  if (type !== 'tv' || !id.startsWith('tamil:')) {
+    return { meta: null };
+  }
+
+  // Check cache
+  const cached = metaCache.get(id);
+  if (cached) {
+    debug('[META] Cache hit');
+    return { meta: cached };
+  }
 
   try {
-    const channels = await loadChannels();
-    const channel = channels.find(ch => 
-      encodeId(ch.url) === id.replace("tamil:", "")
-    );
+    const streamUrl = decodeId(id.replace('tamil:', ''));
+    const channel = await getChannelByUrl(streamUrl);
 
-    return {
-      meta: {
+    const meta = {
+      id: id,
+      type: 'tv',
+      name: channel ? (channel.displayName || channel.name) : 'Live Channel',
+      poster: config.ENABLE_LOGOS && channel?.logo ? channel.logo : undefined,
+      posterShape: 'square',
+      background: config.ENABLE_LOGOS && channel?.logo ? channel.logo : undefined,
+      description: channel 
+        ? `${getCategoryIcon(channel.category)} ${channel.category} • ${channel.quality}\n\n${channel.group || 'Tamil Live TV'}`
+        : 'Live TV Channel',
+      releaseInfo: 'LIVE',
+      runtime: 'LIVE',
+      genres: channel ? [channel.category] : ['Entertainment'],
+      videos: [{
         id: id,
-        type: "tv",
-        name: channel ? channel.name : "Live Channel",
-        releaseInfo: "LIVE",
-        videos: [{
-          id: id,
-          title: "Watch Live",
-          released: new Date().toISOString()
-        }]
+        title: '🔴 Watch Live',
+        released: new Date().toISOString(),
+        available: true
+      }],
+      behaviorHints: {
+        defaultVideoId: id,
+        hasScheduledVideos: false
       }
     };
-  } catch (error) {
+
+    // Cache meta
+    metaCache.set(id, meta);
+
+    return { meta };
+
+  } catch (err) {
+    error('[META] Error:', err.message);
     return { meta: null };
   }
 });
 
-// ========================================
-// THE KEY PART: Extract Real Stream URL
-// ========================================
+// ==========================================
+// STREAM HANDLER - DIRECT EXTRACTION
+// ==========================================
 builder.defineStreamHandler(async ({ type, id }) => {
-  if (type !== "tv" || !id.startsWith("tamil:")) {
+  debug(`[STREAM] type=${type}, id=${id}`);
+  
+  if (type !== 'tv' || !id.startsWith('tamil:')) {
     return { streams: [] };
   }
 
   try {
-    const playlistUrl = decodeId(id.replace("tamil:", ""));
+    const playlistUrl = decodeId(id.replace('tamil:', ''));
     
-    console.log(`[STREAM] Fetching: ${playlistUrl}`);
+    // Check cache
+    const cached = streamCache.get(playlistUrl);
+    if (cached) {
+      log(`[STREAM] ⚡ Cache hit: ${cached.substring(0, 50)}...`);
+      return {
+        streams: [{
+          url: cached,
+          title: '🔴 Live Stream',
+          name: config.APP_NAME,
+          behaviorHints: {
+            notWebReady: true
+          }
+        }]
+      };
+    }
+
+    log(`[STREAM] Fetching: ${playlistUrl}`);
 
     // Fetch the play.m3u8 playlist
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), config.REQUEST_TIMEOUT);
+
     const response = await fetch(playlistUrl, {
+      signal: controller.signal,
       headers: {
         'User-Agent': 'Mozilla/5.0 (SMART-TV; Linux; Tizen 5.0) AppleWebKit/537.36',
         'Accept': '*/*',
         'Referer': 'https://freelivtvstrshare.vvishwas042.workers.dev/'
-      },
-      timeout: 10000
+      }
     });
 
+    clearTimeout(timeout);
+
     if (!response.ok) {
-      throw new Error(`Failed to fetch playlist: ${response.status}`);
+      throw new Error(`Playlist fetch failed: ${response.status}`);
     }
 
     const m3u8Content = await response.text();
-    console.log(`[STREAM] Playlist fetched (${m3u8Content.length} bytes)`);
+    log(`[STREAM] Playlist fetched (${m3u8Content.length} bytes)`);
 
-    // Extract the real stream URL from the playlist
+    // Extract the real stream URL
     const realStreamUrl = extractRealStreamUrl(m3u8Content, playlistUrl);
 
     if (!realStreamUrl) {
-      console.log('[STREAM] No real URL found, using original');
+      log('[STREAM] No real URL found, using original');
       return {
         streams: [{
           url: playlistUrl,
+          title: '🔴 Live Stream',
+          name: config.APP_NAME,
           behaviorHints: { notWebReady: true }
         }]
       };
     }
 
-    console.log(`[STREAM] Real URL: ${realStreamUrl}`);
+    log(`[STREAM] ✅ Real URL: ${realStreamUrl.substring(0, 60)}...`);
 
-    // Return the DIRECT stream URL
+    // Cache the extracted URL
+    streamCache.set(playlistUrl, realStreamUrl);
+
     return {
       streams: [{
         url: realStreamUrl,
+        title: '🔴 Live Stream',
+        name: config.APP_NAME,
         behaviorHints: {
           notWebReady: true
         }
       }]
     };
 
-  } catch (error) {
-    console.error('[STREAM] Error:', error.message);
+  } catch (err) {
+    error('[STREAM] Error:', err.message);
     
-    // Fallback to original URL if extraction fails
-    const playlistUrl = decodeId(id.replace("tamil:", ""));
+    // Fallback to original URL
+    const playlistUrl = decodeId(id.replace('tamil:', ''));
     return {
       streams: [{
         url: playlistUrl,
+        title: '🔴 Live Stream (Fallback)',
+        name: config.APP_NAME,
         behaviorHints: { notWebReady: true }
       }]
     };
   }
 });
 
-// ========================================
-// Extract Real Stream URL from M3U8
-// ========================================
+// ==========================================
+// EXTRACT REAL STREAM URL
+// ==========================================
 function extractRealStreamUrl(m3u8Content, baseUrl) {
   try {
-    const lines = m3u8Content.split('\n').map(line => line.trim());
+    const lines = m3u8Content.split('\n').map(line => line.trim()).filter(Boolean);
     
     // Check if it's a master playlist (has #EXT-X-STREAM-INF)
     const isMasterPlaylist = lines.some(line => line.includes('#EXT-X-STREAM-INF'));
     
     if (isMasterPlaylist) {
-      console.log('[EXTRACT] Master playlist detected, finding best variant');
+      debug('[EXTRACT] Master playlist detected');
       
       // Find all variants
       const variants = [];
       for (let i = 0; i < lines.length; i++) {
         if (lines[i].includes('#EXT-X-STREAM-INF')) {
-          // Extract bandwidth
           const bandwidthMatch = lines[i].match(/BANDWIDTH=(\d+)/);
+          const resolutionMatch = lines[i].match(/RESOLUTION=(\d+x\d+)/);
           const bandwidth = bandwidthMatch ? parseInt(bandwidthMatch[1]) : 0;
+          const resolution = resolutionMatch ? resolutionMatch[1] : 'unknown';
           
-          // Next line should be the URL
-          if (lines[i + 1] && !lines[i + 1].startsWith('#')) {
-            variants.push({
-              url: lines[i + 1],
-              bandwidth: bandwidth
-            });
+          // Next non-comment line should be the URL
+          for (let j = i + 1; j < lines.length; j++) {
+            if (!lines[j].startsWith('#')) {
+              variants.push({
+                url: lines[j],
+                bandwidth,
+                resolution
+              });
+              break;
+            }
           }
         }
       }
       
       if (variants.length === 0) {
-        console.log('[EXTRACT] No variants found');
+        debug('[EXTRACT] No variants found');
         return null;
       }
       
-      // Sort by bandwidth (highest quality first)
+      // Sort by bandwidth (highest first for quality)
       variants.sort((a, b) => b.bandwidth - a.bandwidth);
       
-      // Select middle quality for stability on Samsung TV
+      // Select middle quality for Samsung TV stability
       const selectedIndex = Math.floor(variants.length / 2);
       const selected = variants[selectedIndex];
       
-      console.log(`[EXTRACT] Selected variant: ${selected.bandwidth} bps`);
+      debug(`[EXTRACT] Selected: ${selected.resolution} (${selected.bandwidth} bps)`);
       
       // Make absolute URL
       let variantUrl = selected.url;
@@ -231,35 +352,34 @@ function extractRealStreamUrl(m3u8Content, baseUrl) {
       return variantUrl;
       
     } else {
-      // Already a media playlist, find the first segment
-      console.log('[EXTRACT] Media playlist detected, finding first segment');
+      // Media playlist - find stream URL
+      debug('[EXTRACT] Media playlist detected');
       
-      for (let i = 0; i < lines.length; i++) {
-        const line = lines[i];
+      for (const line of lines) {
+        // Skip comments
+        if (line.startsWith('#')) continue;
         
-        // Skip comments and tags
-        if (line.startsWith('#') || !line) continue;
-        
-        // Found a segment URL
-        if (line.includes('.ts') || line.includes('.m4s')) {
-          console.log('[EXTRACT] Found segment URL');
+        // Found a URL
+        if (line.includes('.ts') || line.includes('.m4s') || line.includes('.m3u8')) {
+          let url = line;
           
-          // Make absolute URL
-          if (line.startsWith('http')) {
-            return line;
-          } else {
+          if (!url.startsWith('http')) {
             const base = baseUrl.substring(0, baseUrl.lastIndexOf('/') + 1);
-            return base + line;
+            url = base + line;
           }
+          
+          debug(`[EXTRACT] Found URL: ${url.substring(0, 50)}...`);
+          return url;
         }
       }
       
-      console.log('[EXTRACT] No segments found, returning playlist URL');
-      return null; // Return null to use original playlist URL
+      // No segment found, return null to use original
+      debug('[EXTRACT] No segments found');
+      return null;
     }
     
-  } catch (error) {
-    console.error('[EXTRACT] Error:', error.message);
+  } catch (err) {
+    error('[EXTRACT] Error:', err.message);
     return null;
   }
 }

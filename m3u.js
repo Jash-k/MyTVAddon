@@ -1,40 +1,48 @@
 const fetch = require('node-fetch');
-
-const PLAYLIST_URL =
-  "https://raw.githubusercontent.com/Jash-k/MyTVStremioAddon/refs/heads/main/starshare.m3u";
-
-const MAX_CHANNELS = 200;
-
-// Cache
-let channelsCache = null;
-let cacheTime = 0;
-const CACHE_DURATION = 1000 * 60 * 30; // 30 minutes
+const config = require('./config');
+const { channelCache } = require('./cache');
+const { log, error, debug, cleanChannelName } = require('./utils');
 
 async function loadChannels() {
-  const now = Date.now();
-  
-  // Return cached if valid
-  if (channelsCache && (now - cacheTime) < CACHE_DURATION) {
-    console.log(`[CACHE] Returning ${channelsCache.length} cached channels`);
-    return channelsCache;
+  // Check cache first
+  const cached = channelCache.get('channels');
+  if (cached) {
+    debug(`[M3U] Returning ${cached.length} cached channels`);
+    return cached;
   }
 
-  console.log('[M3U] Fetching channels...');
+  log('[M3U] Fetching channels from playlist...');
   
   try {
-    const res = await fetch(PLAYLIST_URL, { timeout: 15000 });
-    const text = await res.text();
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), config.REQUEST_TIMEOUT);
 
-    const lines = text.split("\n");
+    const response = await fetch(config.PLAYLIST_URL, {
+      signal: controller.signal,
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (compatible; StremioAddon/2.0)',
+        'Accept': '*/*'
+      }
+    });
+
+    clearTimeout(timeout);
+
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+    }
+
+    const text = await response.text();
+    const lines = text.split('\n');
     const channels = [];
 
     let current = null;
 
     for (const line of lines) {
-      if (line.startsWith("#EXTINF")) {
+      if (line.startsWith('#EXTINF')) {
         const tvgNameMatch = line.match(/tvg-name="([^"]+)"/);
         const groupTitleMatch = line.match(/group-title="([^"]+)"/);
         const tvgLogoMatch = line.match(/tvg-logo="([^"]+)"/);
+        const tvgIdMatch = line.match(/tvg-id="([^"]+)"/);
 
         if (!tvgNameMatch) {
           current = null;
@@ -42,70 +50,139 @@ async function loadChannels() {
         }
 
         const tvgName = tvgNameMatch[1].trim();
-        const groupTitle = groupTitleMatch ? groupTitleMatch[1].trim() : "";
-        const tvgLogo = tvgLogoMatch ? tvgLogoMatch[1].trim() : "";
+        const groupTitle = groupTitleMatch ? groupTitleMatch[1].trim() : '';
+        const tvgLogo = tvgLogoMatch ? tvgLogoMatch[1].trim() : '';
+        const tvgId = tvgIdMatch ? tvgIdMatch[1].trim() : '';
 
-        const isTMChannel = tvgName.startsWith("TM:");
-        const isFreelivTamilGroup = groupTitle.startsWith("FREE LIV TV || TAMIL");
-        const isCricketGroup = groupTitle.includes("FREE LIV TV || CRICKET");
+        // Filter conditions
+        const isTMChannel = tvgName.startsWith('TM:');
+        const isTamilChannel = tvgName.toLowerCase().startsWith('tamil');
+        const isFreelivTamilGroup = groupTitle.startsWith('FREE LIV TV || TAMIL');
+        const isCricketGroup = groupTitle.includes('FREE LIV TV || CRICKET');
+        const is247Channel = tvgName.startsWith('24/7:');
 
-        if (!isTMChannel && !isFreelivTamilGroup && !isCricketGroup) {
+        if (!isTMChannel && !isTamilChannel && !isFreelivTamilGroup && !isCricketGroup && !is247Channel) {
           current = null;
           continue;
         }
 
-        let category = "Entertainment";
+        // Determine category
+        let category = 'Entertainment';
         
-        if (groupTitle.includes("CRICKET") || /cricket/i.test(tvgName) || tvgName.startsWith("CRIC ||")) {
-          category = "Cricket";
-        } else if (groupTitle.includes("MOVIES") || /movie/i.test(tvgName)) {
-          category = "Movies";
-        } else if (groupTitle.includes("NEWS") || /news/i.test(tvgName)) {
-          category = "News";
-        } else if (groupTitle.includes("MUSIC") || /music/i.test(tvgName)) {
-          category = "Music";
+        if (groupTitle.includes('CRICKET') || /cricket/i.test(tvgName) || tvgName.startsWith('CRIC ||')) {
+          category = 'Cricket';
+        } else if (groupTitle.includes('MOVIES') || /movie/i.test(tvgName)) {
+          category = 'Movies';
+        } else if (groupTitle.includes('NEWS') || /news/i.test(tvgName)) {
+          category = 'News';
+        } else if (groupTitle.includes('MUSIC') || /music/i.test(tvgName)) {
+          category = 'Music';
+        } else if (groupTitle.includes('KIDS') || /kids|cartoon/i.test(tvgName)) {
+          category = 'Kids';
+        } else if (/devotional|religious|god/i.test(tvgName)) {
+          category = 'Devotional';
+        }
+
+        // Determine quality
+        let quality = 'SD';
+        if (/4k|⁴ᵏ|uhd/i.test(tvgName)) {
+          quality = '4K';
+        } else if (/fhd|ᶠᴴᴰ|1080/i.test(tvgName)) {
+          quality = 'FHD';
+        } else if (/hd|ᴴᴰ|720/i.test(tvgName)) {
+          quality = 'HD';
         }
 
         current = {
           name: tvgName,
+          displayName: cleanChannelName(tvgName),
           category,
-          logo: tvgLogo,
+          quality,
+          logo: tvgLogo || null,
+          tvgId: tvgId || null,
           group: groupTitle
         };
-      } else if (line.startsWith("http") && current) {
+
+      } else if (line.startsWith('http') && current) {
         channels.push({
-          name: current.name,
-          url: line.trim(),
-          category: current.category,
-          logo: current.logo,
-          group: current.group
+          ...current,
+          url: line.trim()
         });
 
         current = null;
 
-        if (channels.length >= MAX_CHANNELS) break;
+        if (channels.length >= config.MAX_CHANNELS) break;
       }
     }
 
-    console.log(`[M3U] Loaded ${channels.length} channels`);
+    log(`[M3U] Loaded ${channels.length} channels`);
     
-    // Update cache
-    channelsCache = channels;
-    cacheTime = now;
-    
+    // Log category breakdown
+    const categories = {};
+    channels.forEach(ch => {
+      categories[ch.category] = (categories[ch.category] || 0) + 1;
+    });
+    debug('[M3U] Categories:', categories);
+
+    // Cache channels
+    channelCache.set('channels', channels);
+
     return channels;
 
-  } catch (error) {
-    console.error('[M3U] Error loading channels:', error.message);
+  } catch (err) {
+    error('[M3U] Failed to load channels:', err.message);
     
-    // Return cached even if expired in case of error
-    if (channelsCache) {
-      console.log('[M3U] Returning stale cache due to error');
-      return channelsCache;
+    // Return cached even if expired
+    const staleCache = channelCache.cache.get('channels');
+    if (staleCache) {
+      log('[M3U] Returning stale cache due to error');
+      return staleCache.value;
     }
     
     return [];
   }
 }
 
-module.exports = { loadChannels };
+// Get channels by category
+async function getChannelsByCategory(category) {
+  const channels = await loadChannels();
+  
+  if (!category || category === 'all') {
+    return channels;
+  }
+  
+  return channels.filter(ch => 
+    ch.category.toLowerCase() === category.toLowerCase()
+  );
+}
+
+// Get channel by URL
+async function getChannelByUrl(url) {
+  const channels = await loadChannels();
+  return channels.find(ch => ch.url === url);
+}
+
+// Get unique categories
+async function getCategories() {
+  const channels = await loadChannels();
+  const categories = new Map();
+  
+  channels.forEach(ch => {
+    if (!categories.has(ch.category)) {
+      categories.set(ch.category, 0);
+    }
+    categories.set(ch.category, categories.get(ch.category) + 1);
+  });
+  
+  return Array.from(categories.entries()).map(([name, count]) => ({
+    name,
+    count
+  }));
+}
+
+module.exports = {
+  loadChannels,
+  getChannelsByCategory,
+  getChannelByUrl,
+  getCategories
+};
