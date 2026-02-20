@@ -1,0 +1,75 @@
+#EXTM3U
+#EXTINF:-1 tvg-id="1038" tvg-logo="https://jiotv.catchup.cdn.jio.com/dare_images/images/Zee_Tamil.png" group-title="Entertainment",Zee Tamil
+https://jiotvmblive.cdn.jio.com/bpk-tv/ZeeTamil_MOB/WDVLive/index.mpd?__hdnea__=st=1770822039~exp=1770908439~acl=/*~hmac=3630ce8104a25df74dc126d99974fd2adba2d06e45fd1b61cb577f571015aa47
+#EXTINF:-1 tvg-id="1052" tvg-logo="https://jiotv.catchup.cdn.jio.com/dare_images/images/Polimer_TV.png" group-title="Entertainment",Polimer TV
+https://jiotvmblive.cdn.jio.com/bpk-tv/Polimer_TV_BTS/output/index.mpd?__hdnea__=st=1770822039~exp=1770908439~acl=/*~hmac=3630ce8104a25df74dc126d99974fd2adba2d06e45fd1b61cb577f571015aa47
+#EXTINF:-1 tvg-id="1054" tvg-logo="https://jiotv.catchup.cdn.jio.com/dare_images/images/Raj_TV.png" group-title="Entertainment",Raj TV
+https://jiotvmblive.cdn.jio.com/bpk-tv/Raj_TV_BTS/output/index.mpd?__hdnea__=st=1770822039~exp=1770908439~acl=/*~hmac=3630ce8104a25df74dc126d99974fd2adba2d06e45fd1b61cb577f571015aa47
+#EXTINF:-1 tvg-id="1055" tvg-logo="https://jiotv.catchup.cdn.jio.com/dare_images/images/Makkal_TV.png" group-title="Entertainment",Makkal TV
+https://jiotvmblive.cdn.jio.com/bpk-tv/Makkal_TV_BTS/output/index.mpd?__hdnea__=st=1770822039~exp=1770908439~acl=/*~hmac=3630ce8104a25df74dc126d99974fd2adba2d06e45fd1b61cb577f571015aa47
+#EXTINF:-1 tvg-id="1056" tvg-logo="https://jiotv.catchup.cdn.jio.com/dare_images/images/Adithya_TV.png" group-title="Entertainment",Adithya TV
+https://jiotvmblive.cdn.jio.com/bpk-tv/Adithya_TV_MOB/WDVLive/index.mpd?__hdnea__=st=1770822039~exp=1770908439~acl=/*~hmac=3630ce8104a25df74dc126d99974fd2adba2d06e45fd1b61cb577f571015aa47
+#EXTINF:-1 tvg-id="1393" tvg-logo="https://jiotv.catchup.cdn.jio.com/dare_images/images/sonic_Tamil.png" group-title="Kids",sonic Tamil
+https://jiotvmblive.cdn.jio.com/bpk-tv/sonic_Tamil_MOB/WDVLive/index.mpd?__hdnea__=st=1770822039~exp=1770908439~acl=/*~hmac=3630ce8104a25df74dc126d99974fd2adba2d06e45fd1b61cb577f571015aa47
+#EXTINF:-1 tvg-id="1394" tvg-logo="https://jiotv.catchup.cdn.jio.com/dare_images/images/Pogo_Tamil.png" group-title="Kids",Pogo Tamil
+https://jiotvmblive.cdn.jio.com/bpk-tv/Pogo_Hindi_MOB/WDVLive/index.mpd?__hdnea__=st=1770822039~exp=1770908439~acl=/*~hmac=3630ce8104a25df74dc126d99974fd2adba2d06e45fd1b61cb577f571015aa47
+#EXTINF:-1 tvg-id="1398" tvg-logo="https://jiotv.catchup.cdn.jio.com/dare_images/images/Nick_Tamil.png" group-title="Kids",Nick Tamil
+https://jiotvmblive.cdn.jio.com/bpk-tv/Nick_Hindi_BTS/output/index.mpd?__hdnea__=st=1770822039~exp=1770908439~acl=/*~hmac=3630ce8104a25df74dc126d99974fd2adba2d06e45fd1b61cb577f571015aa47
+#EXTINF:-1 tvg-id="1400" tvg-logo="https://jiotv.catchup.cdn.jio.com/dare_images/images/Discovery_Kids_Tamil.png" group-title="Kids",Discovery Kids Tamil
+https://jiotvmblive.cdn.jio.com/bpk-tv/Discovery_Kids_Tamil_MOB/WDVLive/index.mpd?__hdnea__=st=1770822039~exp=1770908439~acl=/*~hmac=3630ce8104a25df74dc126d99974fd2adba2d06e45fd1b61cb577f571015aa47
+#EXTINF:-1 tvg-id="1405" tvg-logo="https://jiotv.catchup.cdn.jio.com/dare_images/images/Chutti_TV.png" group-title="Kids",Chutti TV
+https://jiotvmblive.cdn.jio.com/bpk-tv/Chutti_TV_MOB/WDVLive/index.mpd?__hdnea__=st=1770822039~exp=1770908439~acl=/*~hmac=3630ce8104a25df74dc126d99974fd2adba2d06e45fd1b61cb577f571015aa47
+#EXTINF:-1 tvg-id="1410" tvg-logo="https://jiotv.catchup.cdn.jio.com/dare_images/images/Cartoon_Network_Tamil.png" group-title="Kids",Cartoon Network Tamil
+https://jiotvmblive.cdn.jio.com/bpk-tv/CartoonNetworkTamil_BTS/output/index.mpd?__hdnea__=st=1770822039~exp=1770908439~acl=/*~hmac=3630ce8104a25df74dc126d99974fd2adba2d06e45fd1b61cb577f571015aa47
+#EXTINF:-1 tvg-id="1412" tvg-logo="https://jiotv.catchup.cdn.jio.com/dare_images/images/Sony_Yay_Tamil.png" group-title="Kids",Sony Yay Tamil
+https://jiotvmblive.cdn.jio.com/bpk-tv/SonyYAYTam_MOB/WDVLive/index.mpd?__hdnea__=st=1770822039~exp=1770908439~acl=/*~hmac=3630ce8104a25df74dc126d99974fd2adba2d06e45fd1b61cb577f571015aa47
+#EXTINF:-1 tvg-id="1416" tvg-logo="https://jiotv.catchup.cdn.jio.com/dare_images/images/CN_HD_Tamil.png" group-title="Kids",CN HD+ Tamil
+https://jiotvmblive.cdn.jio.com/bpk-tv/CNHDTamil_MOB/WDVLive/index.mpd?__hdnea__=st=1770822039~exp=1770908439~acl=/*~hmac=3630ce8104a25df74dc126d99974fd2adba2d06e45fd1b61cb577f571015aa47
+#EXTINF:-1 tvg-id="1251" tvg-logo="https://jiotv.catchup.cdn.jio.com/dare_images/images/Sun_Life.png" group-title="Movies",Sun Life
+https://jiotvmblive.cdn.jio.com/bpk-tv/Sun_Life_MOB/WDVLive/index.mpd?__hdnea__=st=1770822039~exp=1770908439~acl=/*~hmac=3630ce8104a25df74dc126d99974fd2adba2d06e45fd1b61cb577f571015aa47
+#EXTINF:-1 tvg-id="1252" tvg-logo="https://jiotv.catchup.cdn.jio.com/dare_images/images/Raj_Digital_Plus.png" group-title="Movies",Raj Digital Plus
+https://jiotvmblive.cdn.jio.com/bpk-tv/Raj_Digital_Plus_BTS/output/index.mpd?__hdnea__=st=1770822039~exp=1770908439~acl=/*~hmac=3630ce8104a25df74dc126d99974fd2adba2d06e45fd1b61cb577f571015aa47
+#EXTINF:-1 tvg-id="1258" tvg-logo="https://jiotv.catchup.cdn.jio.com/dare_images/images/KTV_HD.png" group-title="Movies",KTV HD
+https://jiotvmblive.cdn.jio.com/bpk-tv/KTV_HD_MOB/WDVLive/index.mpd?__hdnea__=st=1770822039~exp=1770908439~acl=/*~hmac=3630ce8104a25df74dc126d99974fd2adba2d06e45fd1b61cb577f571015aa47
+#EXTINF:-1 tvg-id="1982" tvg-logo="https://jiotv.catchup.cdn.jio.com/dare_images/images/Tunes_6.png" group-title="Music",Tunes 6
+https://jiotvmblive.cdn.jio.com/bpk-tv/Tunes_6_BTS/output/index.mpd?__hdnea__=st=1770822039~exp=1770908439~acl=/*~hmac=3630ce8104a25df74dc126d99974fd2adba2d06e45fd1b61cb577f571015aa47
+#EXTINF:-1 tvg-id="1983" tvg-logo="https://jiotv.catchup.cdn.jio.com/dare_images/images/MK_Music.png" group-title="Music",MK Music
+https://jiotvmblive.cdn.jio.com/bpk-tv/MK_Music_BTS/output/index.mpd?__hdnea__=st=1770822039~exp=1770908439~acl=/*~hmac=3630ce8104a25df74dc126d99974fd2adba2d06e45fd1b61cb577f571015aa47
+#EXTINF:-1 tvg-id="1984" tvg-logo="https://jiotv.catchup.cdn.jio.com/dare_images/images/Sun_Music_HD.png" group-title="Music",Sun Music HD
+https://jiotvmblive.cdn.jio.com/bpk-tv/Sun_Music_HD_MOB/WDVLive/index.mpd?__hdnea__=st=1770822039~exp=1770908439~acl=/*~hmac=3630ce8104a25df74dc126d99974fd2adba2d06e45fd1b61cb577f571015aa47
+#EXTINF:-1 tvg-id="1454" tvg-logo="https://jiotv.catchup.cdn.jio.com/dare_images/images/Jaya_Plus.png" group-title="News",Jaya Plus
+https://jiotvmblive.cdn.jio.com/bpk-tv/Jaya_Plus_MOB/WDVLive/index.mpd?__hdnea__=st=1770822039~exp=1770908439~acl=/*~hmac=3630ce8104a25df74dc126d99974fd2adba2d06e45fd1b61cb577f571015aa47
+#EXTINF:-1 tvg-id="1332" tvg-logo="https://jiotv.catchup.cdn.jio.com/dare_images/images/Ten_4_HD_Tamil.png" group-title="Sports",Sony Ten 4 HD Tamil
+https://jiotvmblive.cdn.jio.com/bpk-tv/Ten_4_HD_Tamil_BTS/output/index.mpd?__hdnea__=st=1770822039~exp=1770908439~acl=/*~hmac=3630ce8104a25df74dc126d99974fd2adba2d06e45fd1b61cb577f571015aa47
+#EXTINF:-1 tvg-id="1334" tvg-logo="https://jiotv.catchup.cdn.jio.com/dare_images/images/Ten_4_Tamil.png" group-title="Sports",Sony Ten 4 Tamil
+https://jiotvmblive.cdn.jio.com/bpk-tv/Ten_4_Tamil_BTS/output/index.mpd?__hdnea__=st=1770822039~exp=1770908439~acl=/*~hmac=3630ce8104a25df74dc126d99974fd2adba2d06e45fd1b61cb577f571015aa47
+#EXTINF:-1 tvg-id="1356" tvg-logo="https://img.media.jio.com/tvpimages/19/19/302122_1749662923298_l_medium.jpg" group-title="Sports",Star Sports 1 Tamil HD
+https://jiotvmblive.cdn.jio.com/bpk-tv/Star_Sports_1_Tamil_HD_BTS/output/index.mpd?__hdnea__=st=1770822039~exp=1770908439~acl=/*~hmac=3630ce8104a25df74dc126d99974fd2adba2d06e45fd1b61cb577f571015aa47
+#EXTINF:-1 tvg-id="1357" tvg-logo="https://img.media.jio.com/tvpimages/69/73/301995_1749664384503_l_medium.jpg" group-title="Sports",Star Sports 1 Tamil
+https://jiotvmblive.cdn.jio.com/bpk-tv/Star_Sports_1_Tamil_BTS/output/index.mpd?__hdnea__=st=1770822039~exp=1770908439~acl=/*~hmac=3630ce8104a25df74dc126d99974fd2adba2d06e45fd1b61cb577f571015aa47
+#EXTINF:-1 tvg-id="1362" tvg-logo="https://img.media.jio.com/tvpimages/50/43/302120_1749664850896_l_medium.jpg" group-title="Sports",Star Sports 2 Tamil HD
+https://jiotvmblive.cdn.jio.com/bpk-tv/Star_Sports2_Tamil_HD_BTS/output/index.mpd?__hdnea__=st=1770822039~exp=1770908439~acl=/*~hmac=3630ce8104a25df74dc126d99974fd2adba2d06e45fd1b61cb577f571015aa47
+#EXTINF:-1 tvg-id="1363" tvg-logo="https://img.media.jio.com/tvpimages/74/92/301561_1749664725619_l_medium.jpg" group-title="Sports",Star Sports 2 Tamil
+https://jiotvmblive.cdn.jio.com/bpk-tv/Sports18_3_MOB/WDVCatchup/index.mpd?__hdnea__=st=1770822039~exp=1770908439~acl=/*~hmac=3630ce8104a25df74dc126d99974fd2adba2d06e45fd1b61cb577f571015aa47
+#EXTINF:-1 tvg-id="194406" tvg-logo="https://sund-images.sunnxt.com/194406/640x360_SunMusicHD_194406_87e8d029-f695-477c-9ace-a3c2cbe15004.jpg" tvg-language="Tamil" group-title="SunNxt",Sun Music HD
+https://livestream.sunnxt.com/d434796d90fa4dc9b7ecfacedbe683f1/SunMusicHDB_IN_index.mpd
+#EXTINF:-1 tvg-id="194410" tvg-logo="https://sund-images.sunnxt.com/194410/640x360_SunMusic_194410_d4d08876-9d23-432c-aab4-b5c70c58aaac.jpg" tvg-language="Tamil" group-title="SunNxt",Sun Music
+https://livestream.sunnxt.com/585bb66e95c84ccea3f828c96b3567b5/SunMusicB_IN_index.mpd
+#EXTINF:-1 tvg-id="194391" tvg-logo="https://sund-images.sunnxt.com/194391/640x360_SunLife_194391_d407948a-b7a2-4a1f-8409-56f7261cefa1.jpg" tvg-language="Tamil" group-title="SunNxt",Sun Life
+https://livestream.sunnxt.com/6b79451f54284b3fb680fd717ee008dc/SunLifeB_IN_index.mpd
+#EXTINF:-1 tvg-id="194404" tvg-logo="https://sund-images.sunnxt.com/194404/640x360_SunNews_194404_0af09ceb-cb6f-48e6-9f5c-395749f0fcee.jpg" tvg-language="Tamil" group-title="SunNxt",Sun News
+https://livestream.sunnxt.com/491c99fb6d0c49e88e6349170d890a2f/SunNewsB_IN_index.mpd
+#EXTINF:-1 tvg-id="194409" tvg-logo="https://sund-images.sunnxt.com/194409/640x360_KTV_194409_91b39445-b996-4e46-bafa-b78548e4da2e.jpg" tvg-language="Tamil" group-title="SunNxt",KTV
+https://livestream.sunnxt.com/6ae70edd4c1440379f5311e8fbddc7c1/KTVB_IN_index.mpd
+#EXTINF:-1 tvg-id="194405" tvg-logo="https://sund-images.sunnxt.com/194405/640x360_KTVHD_194405_3c6880f0-468e-48f4-b09a-89fd5fed775d.jpg" tvg-language="Tamil" group-title="SunNxt",KTV HD
+https://livestream.sunnxt.com/61477b4c8d8d45d5a49e044cc1dffc60/KTVHDB_IN_index.mpd
+#EXTINF:-1 tvg-id="194407" tvg-logo="https://sund-images.sunnxt.com/194407/960x540_AdithyaTV_194407_b6f8fa30-255b-4f4a-8f8f-4264abda8b33.jpg" tvg-language="Tamil" group-title="SunNxt",Adithya TV
+https://livestream.sunnxt.com/4d0eb3cde30247ada4ade679fdfbaf86/AdithyaTVB_IN_index.mpd
+#EXTINF:-1 tvg-id="194390" tvg-logo="https://sund-images.sunnxt.com/194390/640x360_ChuttiTV_194390_61005292-313a-45b4-b6a8-3ac5128a513e.jpg" tvg-language="Tamil" group-title="SunNxt",Chutti TV
+https://livestream.sunnxt.com/3ed29d5b01b546eaa05d184cd87535f1/ChuttiTVB_IN_index.mpd
+#EXTINF:-1 tvg-id="2137" tvg-logo="https://jiotv.catchup.cdn.jio.com/dare_images/images/Star_Vijay_HD.png" group-title="Tamil",Star Vijay HD
+https://jiotvmblive.cdn.jio.com/bpk-tv/Star_Vijay_HD_BTS/output/index.mpd?__hdnea__=st=1770822039~exp=1770908439~acl=/*~hmac=3630ce8104a25df74dc126d99974fd2adba2d06e45fd1b61cb577f571015aa47
+#EXTINF:-1 tvg-id="2138" tvg-logo="https://jiotv.catchup.cdn.jio.com/dare_images/images/Star_Vijay.png" group-title="Tamil",Star Vijay
+https://jiotvmblive.cdn.jio.com/bpk-tv/Star_Vijay_BTS/output/index.mpd?__hdnea__=st=1770822039~exp=1770908439~acl=/*~hmac=3630ce8104a25df74dc126d99974fd2adba2d06e45fd1b61cb577f571015aa47
+#EXTINF:-1 tvg-id="2139" tvg-logo="https://jiotv.catchup.cdn.jio.com/dare_images/images/Vijay_Super.png" group-title="Tamil",Vijay Super
+https://jiotvmblive.cdn.jio.com/bpk-tv/Vijay_Super_BTS/output/index.mpd?__hdnea__=st=1770822039~exp=1770908439~acl=/*~hmac=3630ce8104a25df74dc126d99974fd2adba2d06e45fd1b61cb577f571015aa47
